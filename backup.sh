@@ -3,7 +3,7 @@
 #******************* VARIABLE *****************
 
 BACKUPS_FOLDER="/var/backups"
-
+MAIL_ADDRESS="mail@example.com"
 #**********************************************
 
 echo "Executing : $*"
@@ -57,6 +57,8 @@ if [ $1 = "backup" ]; then
 	--one-file-system /
 	
 	echo "Backup done, available at : $BACKUP_NAME" 
+	output=$(ls -lha $BACKUP_NAME)
+	echo "$output" | mail -s "Backup done" $MAIL_ADDRESS	
 fi
 
 if [ $1 = "restore" ]; then
@@ -87,7 +89,8 @@ if [ $1 = "install" ]; then
 	full_path=$curr/$(basename "$0")
 	echo "Script location : $full_path"
 	echo "Writing to crontab"	
-	echo "0 0 */3 * * $full_path" >> crontab-install-backup
+	# Every 3 day with "backup" arg	
+	echo "0 0 */3 * * $full_path backup" >> crontab-install-backup
 	crontab crontab-install-backup
 
 	echo "cleaning tmp file"
