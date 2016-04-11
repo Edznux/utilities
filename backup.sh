@@ -17,8 +17,9 @@ fi
 # Check arguments
 if [ $# -lt 1 ]; then
 	echo "Usage :"
-	echo "$0 backup"
-	echo "$0 restore myBackup.tar.gz"
+	echo "$0 backup : create backup of / (detailed exclude in the script below)"
+	echo "$0 restore myBackup.tar.gz : Restore from myBackup.tar.gz (write to /)"
+	echo "$0 install : Install the backup in cron"
 	exit
 fi
 
@@ -78,4 +79,17 @@ if [ $1 = "restore" ]; then
 		echo "Aborting"
 	fi
 
+fi
+
+if [ $1 = "install" ]; then
+	crontab -l > crontab-install-backup 
+	curr=$(pwd);
+	full_path=$curr/$(basename "$0")
+	echo "Script location : $full_path"
+	echo "Writing to crontab"	
+	echo "0 0 */3 * * $full_path" >> crontab-install-backup
+	crontab crontab-install-backup
+
+	echo "cleaning tmp file"
+	rm crontab-install-backup
 fi
