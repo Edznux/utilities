@@ -26,15 +26,15 @@ fi
 # Check command (backup or restore)
 if [ $1 = "backup" ]; then
 	cd $BACKUPS_FOLDER
-	jour=$(date +%d-%m-%Y)
+	day=$(date +%d-%m-%Y)
 
 
 	echo "Creating list for package installed"
 	apt-mark showauto > $BACKUPS_FOLDER/pkgs_auto.lst
 	apt-mark showmanual > $BACKUPS_FOLDER/pkgs_manual.lst
 
-	echo "Creating backup for $jour"
-	BACKUP_NAME=$BACKUPS_FOLDER/backup-$jour.tar.gz
+	echo "Creating backup for $day"
+	BACKUP_NAME=$BACKUPS_FOLDER/backup-$day.tar.gz
 	tar -cvpzf $BACKUP_NAME \
 	--exclude=/dev/* \
 	--exclude=/home/*/.gvfs \
