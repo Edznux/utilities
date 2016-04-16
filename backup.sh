@@ -3,7 +3,7 @@
 #******************* VARIABLE *****************
 
 BACKUPS_FOLDER="/var/backups"
-MAIL_ADDRESS="mail@example.com"
+MAIL_ADDRESS="edznux@egmail.com"
 #**********************************************
 
 echo "Executing : $*"
@@ -33,7 +33,7 @@ if [ $1 = "backup" ]; then
 	apt-mark showauto > $BACKUPS_FOLDER/pkgs_auto.lst
 	apt-mark showmanual > $BACKUPS_FOLDER/pkgs_manual.lst
 
-	echo "Creating backup for $jour"
+	echo "Creating backup for $jour at `date +\"%T\"`"
 	BACKUP_NAME=$BACKUPS_FOLDER/backup-$jour.tar.gz
 	tar -cvpzf $BACKUP_NAME \
 	--exclude=/dev/* \
@@ -90,7 +90,7 @@ if [ $1 = "install" ]; then
 	echo "Script location : $full_path"
 	echo "Writing to crontab"	
 	# Every 3 day with "backup" arg	
-	echo "0 0 */3 * * $full_path backup" >> crontab-install-backup
+	echo "0 20 */3 * * $full_path backup 2>&1 > $BACKUPS_FOLDER/backup.log" >> crontab-install-backup
 	crontab crontab-install-backup
 
 	echo "cleaning tmp file"
