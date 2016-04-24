@@ -3,7 +3,14 @@
 #******************* VARIABLE *****************
 
 BACKUPS_FOLDER="/var/backups"
-MAIL_ADDRESS="edznux@egmail.com"
+
+# Using MAILGUN for mailing systems (should be free for enough emails notification)
+MAILGUN_NAME="Username"			 # name (of sender)
+MAIL_ADDRESS="dest@example.com"	 	 # dest
+MAILGUN_ADDRESS="you@yourdomain.com"	 # from
+MAILGUN_KEY="APIKEY" 			 # API key for mailgun
+MAILGUN_DOMAIN="mg.example.com" 	 # mx domain for mailgun mg.example.com
+
 #**********************************************
 
 echo "Executing : $*"
@@ -55,10 +62,17 @@ if [ $1 = "backup" ]; then
 	--exclude=node_modules \
 	--exclude=/var/backups/*.tar.gz \
 	--one-file-system /
-	
+
 	echo "Backup done, available at : $BACKUP_NAME" 
 	output=$(ls -lha $BACKUP_NAME)
-	echo "$output" | mail -s "Backup done" $MAIL_ADDRESS	
+	#echo "$output" | mail -s "Backup done" $MAIL_ADDRESS
+
+	curl -s --user "$MAILGUN_KEY" \
+		"https://api.mailgun.net/v3/$MAILGUN_DOMAIN/messages" \
+		-F from="$MAILGUN_NAME $MAILGUN_ADDRESS" \
+		-F to="$MAIL_ADDRESS" \
+		-F subject='Server backup done' \
+		-F text="Backup done : $output"
 fi
 
 if [ $1 = "restore" ]; then
@@ -84,12 +98,12 @@ if [ $1 = "restore" ]; then
 fi
 
 if [ $1 = "install" ]; then
-	crontab -l > crontab-install-backup 
+	crontab -l > crontab-install-backup
 	curr=$(pwd);
 	full_path=$curr/$(basename "$0")
 	echo "Script location : $full_path"
-	echo "Writing to crontab"	
-	# Every 3 day with "backup" arg	
+	echo "Writing to crontab"
+	# Every 3 day with "backup" arg
 	echo "0 20 */3 * * $full_path backup 2>&1 > $BACKUPS_FOLDER/backup.log" >> crontab-install-backup
 	crontab crontab-install-backup
 
